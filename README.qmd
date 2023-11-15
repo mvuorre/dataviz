@@ -1,0 +1,6 @@
+---
+format: gfm
+output-file: README.md
+---
+
+{{< include index.qmd >}}
