@@ -1,0 +1,7 @@
+---
+title: Data visualization workshop
+abstract: |
+  This workshop will cover the basics of communicating quantitative information through the visual medium. In addition to a conceptual understanding of what makes a good graph, we place emphasis on practical tools for creating and presenting publication quality graphics that intrigue, inform, and impress.
+---
+
+## Program

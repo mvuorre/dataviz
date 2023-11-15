@@ -1,17 +1,29 @@
 project:
   type: website
+  output-dir: docs
+  post-render: quarto render README.qmd
+
+authors:
+  - name: Matti Vuorre
+    email: mjvuorre@uvt.nl
+    orcid: 0000-0001-5052-066X
+    url: https://vuorre.com
+    affiliation:
+      - ref: 1
+affiliations:
+  - id: 1
+    name: Tilburg University
+    url: https://www.tilburguniversity.edu/staff/m-j-vuorre
 
 website:
-  title: "Dataviz"
-  navbar:
-    left:
-      - href: index.qmd
-        text: Home
-      - about.qmd
-      - introduction.qmd
+  favicon: favicon.ico
+  repo-url: https://github.com/mvuorre/dataviz
+  page-footer: "Matti Vuorre | CC0 1.0 Universal"
 
 format:
   html:
-    theme: cosmo
-    css: styles.css
-    toc: true
+    theme: 
+      light: default
+      dark:
+        - default
+        - custom.scss
