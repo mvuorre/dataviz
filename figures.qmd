@@ -1,0 +1,197 @@
+---
+title: Data visualization
+subtitle: |
+  In practice
+title-slide-attributes: 
+  data-background-image: assets/elliott-engelmann-DjlKxYFJlTc-unsplash.jpg
+format:
+  revealjs: 
+    theme: 
+      - default
+      - custom.scss
+    chalkboard: true
+    incremental: true
+    # history: false
+    controls: false
+    center-title-slide: false
+    slide-number: c/t
+---
+
+# Figures
+
+```{r}
+library(ggthemes)
+library(patchwork)
+library(ggbeeswarm)
+library(ggpp)
+library(gt)
+library(png)
+library(ggdist)
+library(anscombiser)
+library(ggpmisc)
+library(grid)
+library(palmerpenguins)
+library(tidyverse)
+
+theme_set(
+  theme_linedraw(base_size = 18, base_family = "PT Sans") +
+    theme(
+      text = element_text(face = "bold"),
+      panel.grid = element_blank()
+    )
+)
+```
+
+## Elements
+
+```{r}
+penguins <- drop_na(penguins)
+
+head(penguins) |> 
+  gt(caption = "Size measurements for adult foraging penguins near Palmer Station, Antarctica")
+
+p_canvas <- penguins |> 
+  ggplot() +
+  theme(aspect.ratio = 1)
+
+p_axes <- p_canvas +
+  aes(species, body_mass_g)
+
+p_points <- p_axes +
+  geom_point()
+
+p_boxplots <- p_axes + 
+  geom_boxplot() +
+  geom_point()
+
+p_facets <- p_boxplots +
+  facet_wrap("year")
+
+p_color <- p_axes +
+  scale_color_brewer(
+    "Sex",
+    palette = "Set1",
+    aesthetics = c("color", "fill", "slab_color")
+  ) +
+  stat_dots(
+    aes(
+      side = if_else(sex == "male", "left", "right"), 
+      col = sex, fill = sex, slab_color = sex
+    ),
+    slab_alpha = 0.75,
+    scale = 0.5
+  )
+
+wrap_plots(
+  p_color + theme_tufte() + ggtitle("theme_tufte()"),
+  p_color + theme_gray() + ggtitle("theme_grey()"),
+  p_color + theme_wsj() + ggtitle("theme_wsj()")
+) &
+  theme(legend.position = "none")
+```
+
+## Bars and axes
+
+```{r}
+data_fake <- tibble(
+  x = c("Our product", "Their product"),
+  y = c(200, 190)
+)
+
+p0 <- data_fake |> 
+  ggplot(aes(x, y)) +
+  scale_y_continuous(
+    "Money",
+    expand = expansion(c(0, 0.1))
+  ) +
+  theme(axis.title.x = element_blank())
+
+p0 + 
+  geom_col() + 
+  coord_cartesian(ylim = c(189, 201)) |
+  p0 + geom_col()
+```
+
+## Trump
+
+```{r}
+p0 <- as_tibble(trump) |> 
+  ggplot(aes(x, y)) +
+  geom_blank()
+
+p1 <- p0 + geom_smooth(
+  col = "black", 
+  linewidth = 0.5
+)
+
+p2 <- p0 + geom_point(
+  position = position_jitter(0.02, 0.02), 
+  size = 0.2, 
+  alpha = 0.5
+)
+
+p1 | p2
+```
+
+## Barcharts and error bars
+
+```{r}
+sleep <- tibble(sleep) |> 
+  mutate(
+    group = paste("Drug", group)
+  )
+
+p0 <- sleep |>   
+  ggplot(aes(group, extra)) +
+  scale_y_continuous(
+    "Increase in sleep (hours)",
+    expand = expansion(c(0.1, 0.1))
+  ) +
+  geom_blank() +
+  stat_summary(
+    fun = mean,
+    geom = "bar",
+    col = "black",
+    fill = "grey40"
+  ) +
+  theme(
+    axis.title.x = element_blank()
+  )
+
+p1 <- p0 + 
+  stat_summary(
+    fun.data = mean_cl_boot,
+    geom = "errorbar",
+    width = .25
+  )
+
+p0 | p1
+```
+
+## Small multiples
+
+```{r}
+p1 <- lme4::sleepstudy |> 
+  ggplot(aes(x = Days, y = Reaction)) +
+  geom_point(shape = 1) +
+  scale_x_continuous(
+    "Days sleep deprivation",
+    breaks = c(0, 3, 6, 9)
+  ) +
+  scale_y_continuous(
+    "Reaction time (ms)"
+  ) +
+  geom_smooth(
+    method = "gam", 
+    col = "black",
+    linewidth = 0.5,
+    level = .80
+  )
+
+p2 <- p1 + facet_wrap(~Subject, nrow = 3)
+p1 <- p1 + theme(axis.title = element_blank())
+(p2 | p1) +
+  plot_layout(widths = c(65, 35)) &
+  theme(strip.text = element_blank())
+```
+
